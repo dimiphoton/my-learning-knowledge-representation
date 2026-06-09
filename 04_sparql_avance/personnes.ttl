@@ -1,0 +1,54 @@
+# =============================================================================
+# Etape 4 : graphe des personnes, enrichi pour les requetes avancees.
+#
+# On garde Alice / Bob / Carol et on ajoute David et Emma pour avoir
+# des cas varies (avec/sans email, noms commencant par 'A', dates differentes).
+# =============================================================================
+
+@prefix ex:     <http://exemple.org/> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+ex:alice a foaf:Person ;
+    foaf:name "Alice Martin" ;
+    foaf:age 32 ;
+    foaf:mbox <mailto:alice@exemple.org> ;
+    schema:birthDate "1994-03-15"^^xsd:date ;
+    schema:worksFor ex:acmeCorp ;
+    foaf:knows ex:bob .
+
+ex:bob a foaf:Person ;
+    foaf:name "Bob Dupont" ;
+    foaf:age 27 ;
+    foaf:mbox <mailto:bob@exemple.org> ;
+    schema:birthDate "1999-11-02"^^xsd:date ;
+    schema:worksFor ex:acmeCorp .
+
+# Carol : PAS d'email (utile pour OPTIONAL et le test "email absent").
+ex:carol a foaf:Person ;
+    foaf:name "Carol Nguyen" ;
+    foaf:age 41 ;
+    schema:birthDate "1985-07-20"^^xsd:date ;
+    schema:worksFor ex:globex ;
+    foaf:knows ex:alice .
+
+ex:david a foaf:Person ;
+    foaf:name "David Leroy" ;
+    foaf:age 29 ;
+    foaf:mbox <mailto:david@exemple.org> ;
+    schema:birthDate "1997-01-09"^^xsd:date ;
+    schema:worksFor ex:globex .
+
+# Anna : nom commencant par 'A', et PAS d'email non plus.
+ex:anna a foaf:Person ;
+    foaf:name "Anna Bianchi" ;
+    foaf:age 35 ;
+    schema:birthDate "1991-05-30"^^xsd:date ;
+    schema:worksFor ex:acmeCorp .
+
+ex:acmeCorp a schema:Organization ;
+    schema:name "ACME Corporation" .
+
+ex:globex a schema:Organization ;
+    schema:name "Globex" .

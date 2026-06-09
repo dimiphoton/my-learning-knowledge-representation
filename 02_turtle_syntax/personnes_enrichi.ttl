@@ -1,0 +1,51 @@
+# =============================================================================
+# Etape 2 : le meme graphe que l'etape 1, mais lisible et enrichi.
+#
+# Nouveautes par rapport a l'etape 1 :
+#   - @prefix : on declare des raccourcis pour ne plus ecrire les IRIs en entier.
+#   - vocabulaires STANDARDS : foaf (gens/contacts) et schema (Schema.org).
+#   - litteraux TYPES : entiers (xsd:integer), dates (xsd:date)...
+#   - le ";" : permet d'enchainer plusieurs predicats sur le MEME sujet.
+# =============================================================================
+
+# --- Declaration des prefixes (les raccourcis) ---
+@prefix ex:     <http://exemple.org/> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .          # Friend Of A Friend : decrire des personnes
+@prefix schema: <https://schema.org/> .                 # Schema.org : vocabulaire generaliste (Google & co)
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .   # types de donnees (entier, date, etc.)
+
+# Grace aux prefixes, "ex:alice" veut dire "http://exemple.org/alice".
+# Et "a" est un raccourci Turtle special qui veut dire "rdf:type" (est un / est de type).
+
+# --- Alice ---
+ex:alice a foaf:Person ;                       # Alice est une Personne (au sens FOAF)
+    foaf:name "Alice Martin" ;                 # nom (litteral texte par defaut)
+    foaf:age 32 ;                              # age : entier (xsd:integer deduit automatiquement)
+    foaf:mbox <mailto:alice@exemple.org> ;     # email : convention FOAF = une IRI mailto:
+    schema:birthDate "1994-03-15"^^xsd:date ;  # date de naissance typee explicitement
+    schema:worksFor ex:acmeCorp ;              # employeur (un lien vers une autre ressource)
+    foaf:knows ex:bob .                         # Alice connait Bob
+
+# --- Bob ---
+ex:bob a foaf:Person ;
+    foaf:name "Bob Dupont" ;
+    foaf:age 27 ;
+    foaf:mbox <mailto:bob@exemple.org> ;
+    schema:birthDate "1999-11-02"^^xsd:date ;
+    schema:worksFor ex:acmeCorp .
+    # Note : Bob n'a pas de foaf:knows ici (utile pour les exercices plus tard).
+
+# --- Carol ---
+ex:carol a foaf:Person ;
+    foaf:name "Carol Nguyen" ;
+    foaf:age 41 ;
+    schema:worksFor ex:globex ;
+    foaf:knows ex:alice .
+    # Note : Carol n'a volontairement PAS d'email (foaf:mbox).
+
+# --- Les employeurs (des organisations, pas des personnes) ---
+ex:acmeCorp a schema:Organization ;
+    schema:name "ACME Corporation" .
+
+ex:globex a schema:Organization ;
+    schema:name "Globex" .

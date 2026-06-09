@@ -1,0 +1,23 @@
+# Dependances pour le parcours de tutoriels "Representation des Connaissances".
+# Installation : pip install -r requirements.txt
+rdflib>=7.0
+
+# Pour executer les notebooks de manipulations (manipulations.ipynb) :
+notebook>=7.0
+ipykernel>=6.0
+
+# Raisonneur RDFS / OWL-RL (etapes 6 et 7) : calcule les triplets inferes.
+owlrl>=6.0
+
+# Projet 09 (vote de consensus + algorithme genetique) : calcul/aleatoire.
+numpy>=1.26
+
+# Projet 09 : visualisation (courbe d'entropie + arbre de negociation).
+matplotlib>=3.8
+networkx>=3.0
+
+# Projet 09 : tableaux de comparaison des strategies (comparaison_strategies.ipynb).
+pandas>=2.0
+
+# Projet 09 : interface interactive de negociation manuelle (Streamlit).
+streamlit>=1.30

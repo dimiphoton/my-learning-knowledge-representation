@@ -1,0 +1,69 @@
+# =============================================================================
+# Les MEMES donnees que entreprise.csv, mais en ONTOLOGIE OWL.
+#
+# Difference cle : ici on ne stocke pas seulement des valeurs, on declare aussi
+# le SENS (le schema logique). Un raisonneur pourra alors DEDUIRE des faits
+# qu'on n'a jamais ecrits.
+# =============================================================================
+
+@prefix ex:   <http://exemple.org/entreprise/> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# -----------------------------------------------------------------------------
+# SCHEMA : la hierarchie de types (ce qu'une simple colonne 'role' ne capture pas)
+# -----------------------------------------------------------------------------
+ex:Employe a owl:Class ;
+    rdfs:label "Employe" .
+
+# Un Manager EST UNE SORTE D'Employe. Un Ingenieur aussi. Une Directrice est un Manager.
+ex:Manager a owl:Class ;
+    rdfs:label "Manager" ;
+    rdfs:subClassOf ex:Employe .
+
+ex:Ingenieur a owl:Class ;
+    rdfs:label "Ingenieur" ;
+    rdfs:subClassOf ex:Employe .
+
+ex:Directrice a owl:Class ;
+    rdfs:label "Directrice" ;
+    rdfs:subClassOf ex:Manager .
+
+# -----------------------------------------------------------------------------
+# SCHEMA : les proprietes "intelligentes"
+# -----------------------------------------------------------------------------
+
+# "a pour superieur" est TRANSITIVE : le superieur de mon superieur est mon superieur.
+ex:aPourSuperieur a owl:TransitiveProperty ;
+    rdfs:label "a pour superieur" .
+
+# "supervise" est l'INVERSE de "a pour superieur" : on n'ecrit qu'un sens.
+ex:supervise a owl:ObjectProperty ;
+    rdfs:label "supervise" ;
+    owl:inverseOf ex:aPourSuperieur .
+
+ex:nom a owl:DatatypeProperty ;
+    rdfs:label "nom" .
+
+# -----------------------------------------------------------------------------
+# DONNEES : les individus.
+#   On type chacun avec son role PRECIS (Manager, Ingenieur...), jamais "Employe".
+#   On n'ecrit que les liens hierarchiques DIRECTS.
+# -----------------------------------------------------------------------------
+ex:alice a ex:Directrice ; ex:nom "Alice" .
+
+ex:bob a ex:Manager ; ex:nom "Bob" ;
+    ex:aPourSuperieur ex:alice .
+
+ex:carol a ex:Manager ; ex:nom "Carol" ;
+    ex:aPourSuperieur ex:alice .
+
+ex:david a ex:Ingenieur ; ex:nom "David" ;
+    ex:aPourSuperieur ex:bob .
+
+ex:emma a ex:Ingenieur ; ex:nom "Emma" ;
+    ex:aPourSuperieur ex:bob .
+
+ex:frank a ex:Ingenieur ; ex:nom "Frank" ;
+    ex:aPourSuperieur ex:carol .

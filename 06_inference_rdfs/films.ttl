@@ -1,0 +1,77 @@
+# =============================================================================
+# Etape 6 : meme ontologie qu'a l'etape 5, avec un cas supplementaire concu
+# pour illustrer l'inference par domain/range.
+#
+# Nouveaute : ex:villeneuve et ex:dune ne sont PAS types explicitement.
+# Le raisonneur va deduire leur type grace au domain/range de ex:aRealise.
+# =============================================================================
+
+@prefix ex:   <http://exemple.org/cinema/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# --- Schema : classes ---
+ex:Personne a rdfs:Class ;
+    rdfs:label "Personne" .
+
+ex:Film a rdfs:Class ;
+    rdfs:label "Film" .
+
+ex:Realisateur a rdfs:Class ;
+    rdfs:label "Realisateur" ;
+    rdfs:subClassOf ex:Personne .
+
+ex:Acteur a rdfs:Class ;
+    rdfs:label "Acteur" ;
+    rdfs:subClassOf ex:Personne .
+
+# --- Schema : proprietes ---
+ex:aRealise a rdf:Property ;
+    rdfs:label "a realise" ;
+    rdfs:domain ex:Realisateur ;
+    rdfs:range ex:Film .
+
+ex:aJoueDans a rdf:Property ;
+    rdfs:label "a joue dans" ;
+    rdfs:domain ex:Acteur ;
+    rdfs:range ex:Film .
+
+ex:titre a rdf:Property ;
+    rdfs:label "titre" ;
+    rdfs:domain ex:Film ;
+    rdfs:range xsd:string .
+
+ex:nom a rdf:Property ;
+    rdfs:label "nom" ;
+    rdfs:domain ex:Personne ;
+    rdfs:range xsd:string .
+
+# --- Donnees : individus types explicitement ---
+ex:nolan a ex:Realisateur ;
+    ex:nom "Christopher Nolan" ;
+    ex:aRealise ex:inception .
+
+ex:dicaprio a ex:Acteur ;
+    ex:nom "Leonardo DiCaprio" ;
+    ex:aJoueDans ex:inception .
+
+ex:inception a ex:Film ;
+    ex:titre "Inception" .
+
+ex:eastwood a ex:Realisateur , ex:Acteur ;
+    ex:nom "Clint Eastwood" ;
+    ex:aRealise ex:granTorino ;
+    ex:aJoueDans ex:granTorino .
+
+ex:granTorino a ex:Film ;
+    ex:titre "Gran Torino" .
+
+# --- Donnees : individus NON types (volontairement) ---
+# On dit juste "villeneuve a realise dune". On ne dit PAS que villeneuve est
+# un Realisateur, ni que dune est un Film. Le raisonneur le deduira via
+# le domain (-> Realisateur) et le range (-> Film) de la propriete ex:aRealise.
+ex:villeneuve ex:nom "Denis Villeneuve" ;
+    ex:aRealise ex:dune .
+
+ex:dune ex:titre "Dune" .

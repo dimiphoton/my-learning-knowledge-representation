@@ -1,0 +1,60 @@
+# =============================================================================
+# Ontologie des ACTIVITES de vacances (meme theme).
+#
+# Hierarchie de classes (Activite -> sportive / culturelle / detente) + une
+# propriete d'objet "seDeroulePendant" vers une Saison. Bon support pour le
+# visualiseur : on voit les sous-classes ET un lien entre deux classes.
+# =============================================================================
+
+@prefix a:    <http://exemple.org/activites/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# SCHEMA : classes et hierarchie
+# -----------------------------------------------------------------------------
+a:Activite           a rdfs:Class ; rdfs:label "Activite" .
+a:ActiviteSportive   a rdfs:Class ; rdfs:label "Activite sportive"   ; rdfs:subClassOf a:Activite .
+a:ActiviteCulturelle a rdfs:Class ; rdfs:label "Activite culturelle" ; rdfs:subClassOf a:Activite .
+a:ActiviteDetente    a rdfs:Class ; rdfs:label "Activite detente"    ; rdfs:subClassOf a:Activite .
+a:Saison             a rdfs:Class ; rdfs:label "Saison" .
+
+# -----------------------------------------------------------------------------
+# SCHEMA : proprietes
+# -----------------------------------------------------------------------------
+a:seDeroulePendant a rdf:Property ; rdfs:domain a:Activite ; rdfs:range a:Saison .
+a:intensite        a rdf:Property ; rdfs:domain a:Activite ; rdfs:range xsd:integer .  # 0 (calme) a 10
+a:prix             a rdf:Property ; rdfs:domain a:Activite ; rdfs:range xsd:integer .
+a:enInterieur      a rdf:Property ; rdfs:domain a:Activite ; rdfs:range xsd:boolean .
+
+# -----------------------------------------------------------------------------
+# DONNEES : saisons
+# -----------------------------------------------------------------------------
+a:ete        a a:Saison ; rdfs:label "Ete" .
+a:hiver      a a:Saison ; rdfs:label "Hiver" .
+a:touteAnnee a a:Saison ; rdfs:label "Toute l'annee" .
+
+# -----------------------------------------------------------------------------
+# DONNEES : activites concretes
+# -----------------------------------------------------------------------------
+a:randonnee a a:ActiviteSportive ; rdfs:label "Randonnee" ;
+    a:seDeroulePendant a:ete ; a:intensite 6 ; a:prix 0 ; a:enInterieur false .
+
+a:ski a a:ActiviteSportive ; rdfs:label "Ski" ;
+    a:seDeroulePendant a:hiver ; a:intensite 8 ; a:prix 45 ; a:enInterieur false .
+
+a:plongee a a:ActiviteSportive ; rdfs:label "Plongee" ;
+    a:seDeroulePendant a:ete ; a:intensite 7 ; a:prix 80 ; a:enInterieur false .
+
+a:musee a a:ActiviteCulturelle ; rdfs:label "Musee" ;
+    a:seDeroulePendant a:touteAnnee ; a:intensite 2 ; a:prix 15 ; a:enInterieur true .
+
+a:visiteGuidee a a:ActiviteCulturelle ; rdfs:label "Visite guidee" ;
+    a:seDeroulePendant a:touteAnnee ; a:intensite 3 ; a:prix 20 ; a:enInterieur false .
+
+a:spa a a:ActiviteDetente ; rdfs:label "Spa" ;
+    a:seDeroulePendant a:touteAnnee ; a:intensite 1 ; a:prix 60 ; a:enInterieur true .
+
+a:yoga a a:ActiviteDetente ; rdfs:label "Yoga" ;
+    a:seDeroulePendant a:ete ; a:intensite 3 ; a:prix 25 ; a:enInterieur false .

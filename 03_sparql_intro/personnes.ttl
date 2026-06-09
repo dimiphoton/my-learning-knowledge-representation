@@ -1,0 +1,40 @@
+# =============================================================================
+# Copie autonome du graphe de l'etape 2 (pour que ce dossier soit independant).
+# C'est ce fichier que requetes.py va charger puis interroger en SPARQL.
+# =============================================================================
+
+@prefix ex:     <http://exemple.org/> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <https://schema.org/> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+
+# --- Alice ---
+ex:alice a foaf:Person ;
+    foaf:name "Alice Martin" ;
+    foaf:age 32 ;
+    foaf:mbox <mailto:alice@exemple.org> ;
+    schema:birthDate "1994-03-15"^^xsd:date ;
+    schema:worksFor ex:acmeCorp ;
+    foaf:knows ex:bob .
+
+# --- Bob ---
+ex:bob a foaf:Person ;
+    foaf:name "Bob Dupont" ;
+    foaf:age 27 ;
+    foaf:mbox <mailto:bob@exemple.org> ;
+    schema:birthDate "1999-11-02"^^xsd:date ;
+    schema:worksFor ex:acmeCorp .
+
+# --- Carol (pas d'email) ---
+ex:carol a foaf:Person ;
+    foaf:name "Carol Nguyen" ;
+    foaf:age 41 ;
+    schema:worksFor ex:globex ;
+    foaf:knows ex:alice .
+
+# --- Organisations ---
+ex:acmeCorp a schema:Organization ;
+    schema:name "ACME Corporation" .
+
+ex:globex a schema:Organization ;
+    schema:name "Globex" .

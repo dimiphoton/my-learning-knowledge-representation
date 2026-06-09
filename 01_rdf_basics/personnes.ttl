@@ -1,0 +1,30 @@
+# =============================================================================
+# Etape 1 : nos tout premiers triplets RDF, ecrits a la main.
+#
+# Un triplet se lit toujours dans cet ordre :
+#     <Sujet>  <Predicat>  <Objet> .
+# Le point final " ." termine chaque triplet (comme un point en fin de phrase).
+#
+# Ici on utilise volontairement des IRIs COMPLETES entre chevrons < >,
+# sans aucun raccourci, pour bien voir la "forme brute" du RDF.
+# (Les prefixes qui raccourcissent tout ca arrivent a l'etape 2.)
+# =============================================================================
+
+# "Alice est une Personne"
+#  Sujet    = http://exemple.org/alice
+#  Predicat = ...rdf-syntax-ns#type  (= "est de type / est un")
+#  Objet    = http://exemple.org/Personne
+<http://exemple.org/alice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://exemple.org/Personne> .
+
+# "Bob est une Personne"
+<http://exemple.org/bob> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://exemple.org/Personne> .
+
+# "Alice connait Bob"
+<http://exemple.org/alice> <http://exemple.org/connait> <http://exemple.org/bob> .
+
+# "Le nom d'Alice est la chaine de caracteres 'Alice'"
+#  Ici l'objet n'est PAS une IRI mais un LITTERAL (du texte), donc entre " ".
+<http://exemple.org/alice> <http://exemple.org/nom> "Alice" .
+
+# "Le nom de Bob est 'Bob'"
+<http://exemple.org/bob> <http://exemple.org/nom> "Bob" .

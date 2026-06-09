@@ -1,0 +1,114 @@
+# =============================================================================
+# Ontologie de l'espace des sejours de vacances.
+#
+# Elle joue deux roles :
+#   - decrire le VOCABULAIRE (classes : Destination, TypeSejour, Localisation) ;
+#   - servir de CATALOGUE : la liste concrete des destinations et leurs attributs.
+#
+# Le simulateur lit ce fichier via SPARQL pour construire l'espace de recherche
+# de l'algorithme genetique. Un "candidat" sera un couple (destination, semaine).
+# =============================================================================
+
+@prefix v:    <http://exemple.org/vacances/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# SCHEMA : classes
+# -----------------------------------------------------------------------------
+v:Destination  a rdfs:Class ; rdfs:label "Destination" .
+v:TypeSejour   a rdfs:Class ; rdfs:label "Type de sejour" .
+v:Localisation a rdfs:Class ; rdfs:label "Localisation" .
+
+# -----------------------------------------------------------------------------
+# SCHEMA : proprietes
+# -----------------------------------------------------------------------------
+v:aPourType         a rdf:Property ; rdfs:domain v:Destination ; rdfs:range v:TypeSejour .
+v:aPourLocalisation a rdf:Property ; rdfs:domain v:Destination ; rdfs:range v:Localisation .
+v:semaineDisponible a rdf:Property ; rdfs:domain v:Destination ; rdfs:range xsd:integer .
+v:coutParPersonne   a rdf:Property ; rdfs:domain v:Destination ; rdfs:range xsd:integer .
+# niveauAnimation : 0 = tres calme, 10 = tres festif.
+v:niveauAnimation   a rdf:Property ; rdfs:domain v:Destination ; rdfs:range xsd:integer .
+
+# -----------------------------------------------------------------------------
+# DONNEES : les types de sejour possibles
+# -----------------------------------------------------------------------------
+v:Plage    a v:TypeSejour ; rdfs:label "Plage" .
+v:Montagne a v:TypeSejour ; rdfs:label "Montagne" .
+v:Ville    a v:TypeSejour ; rdfs:label "Ville" .
+v:Campagne a v:TypeSejour ; rdfs:label "Campagne" .
+
+# -----------------------------------------------------------------------------
+# DONNEES : les localisations possibles
+# -----------------------------------------------------------------------------
+v:France   a v:Localisation ; rdfs:label "France" .
+v:Espagne  a v:Localisation ; rdfs:label "Espagne" .
+v:Italie   a v:Localisation ; rdfs:label "Italie" .
+v:Suisse   a v:Localisation ; rdfs:label "Suisse" .
+v:Maroc    a v:Localisation ; rdfs:label "Maroc" .
+v:Portugal a v:Localisation ; rdfs:label "Portugal" .
+
+# -----------------------------------------------------------------------------
+# DONNEES : le catalogue de destinations
+#   semaineDisponible peut avoir plusieurs valeurs (semaines d'ete : 26 a 35).
+# -----------------------------------------------------------------------------
+v:nice a v:Destination ; rdfs:label "Nice" ;
+    v:aPourType v:Plage ; v:aPourLocalisation v:France ;
+    v:coutParPersonne 600 ; v:niveauAnimation 7 ;
+    v:semaineDisponible 27, 28, 29, 30, 31, 32, 33, 34 .
+
+v:chamonix a v:Destination ; rdfs:label "Chamonix" ;
+    v:aPourType v:Montagne ; v:aPourLocalisation v:France ;
+    v:coutParPersonne 700 ; v:niveauAnimation 4 ;
+    v:semaineDisponible 27, 28, 29, 30, 31 .
+
+v:barcelone a v:Destination ; rdfs:label "Barcelone" ;
+    v:aPourType v:Ville ; v:aPourLocalisation v:Espagne ;
+    v:coutParPersonne 550 ; v:niveauAnimation 9 ;
+    v:semaineDisponible 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 .
+
+v:rome a v:Destination ; rdfs:label "Rome" ;
+    v:aPourType v:Ville ; v:aPourLocalisation v:Italie ;
+    v:coutParPersonne 650 ; v:niveauAnimation 8 ;
+    v:semaineDisponible 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 .
+
+v:corse a v:Destination ; rdfs:label "Corse" ;
+    v:aPourType v:Plage ; v:aPourLocalisation v:France ;
+    v:coutParPersonne 800 ; v:niveauAnimation 5 ;
+    v:semaineDisponible 28, 29, 30, 31, 32, 33 .
+
+v:zermatt a v:Destination ; rdfs:label "Zermatt" ;
+    v:aPourType v:Montagne ; v:aPourLocalisation v:Suisse ;
+    v:coutParPersonne 1100 ; v:niveauAnimation 3 ;
+    v:semaineDisponible 27, 28, 29, 30 .
+
+v:marrakech a v:Destination ; rdfs:label "Marrakech" ;
+    v:aPourType v:Ville ; v:aPourLocalisation v:Maroc ;
+    v:coutParPersonne 500 ; v:niveauAnimation 6 ;
+    v:semaineDisponible 26, 27, 28, 29, 30 .
+
+v:toscane a v:Destination ; rdfs:label "Toscane" ;
+    v:aPourType v:Campagne ; v:aPourLocalisation v:Italie ;
+    v:coutParPersonne 600 ; v:niveauAnimation 2 ;
+    v:semaineDisponible 27, 28, 29, 30, 31, 32, 33, 34 .
+
+v:ardeche a v:Destination ; rdfs:label "Ardeche" ;
+    v:aPourType v:Campagne ; v:aPourLocalisation v:France ;
+    v:coutParPersonne 400 ; v:niveauAnimation 3 ;
+    v:semaineDisponible 27, 28, 29, 30, 31, 32, 33 .
+
+v:costaBrava a v:Destination ; rdfs:label "Costa Brava" ;
+    v:aPourType v:Plage ; v:aPourLocalisation v:Espagne ;
+    v:coutParPersonne 480 ; v:niveauAnimation 8 ;
+    v:semaineDisponible 27, 28, 29, 30, 31, 32, 33, 34, 35 .
+
+v:annecy a v:Destination ; rdfs:label "Annecy" ;
+    v:aPourType v:Montagne ; v:aPourLocalisation v:France ;
+    v:coutParPersonne 550 ; v:niveauAnimation 5 ;
+    v:semaineDisponible 27, 28, 29, 30, 31, 32 .
+
+v:lisbonne a v:Destination ; rdfs:label "Lisbonne" ;
+    v:aPourType v:Ville ; v:aPourLocalisation v:Portugal ;
+    v:coutParPersonne 520 ; v:niveauAnimation 8 ;
+    v:semaineDisponible 26, 27, 28, 29, 30, 31, 32, 33, 34, 35 .

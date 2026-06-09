@@ -1,0 +1,60 @@
+# =============================================================================
+# Ontologie des HEBERGEMENTS (meme theme "vacances").
+#
+# Elle illustre une hierarchie de classes (subClassOf) : un Hotel, un Camping...
+# sont tous des Hebergement. C'est un bon exemple a visualiser avec
+# visualiseur_ontologie.py (on voit l'arbre des sous-classes).
+# =============================================================================
+
+@prefix h:    <http://exemple.org/hebergement/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# SCHEMA : classes et hierarchie
+# -----------------------------------------------------------------------------
+h:Hebergement     a rdfs:Class ; rdfs:label "Hebergement" .
+h:Hotel           a rdfs:Class ; rdfs:label "Hotel"            ; rdfs:subClassOf h:Hebergement .
+h:Camping         a rdfs:Class ; rdfs:label "Camping"          ; rdfs:subClassOf h:Hebergement .
+h:Gite            a rdfs:Class ; rdfs:label "Gite"             ; rdfs:subClassOf h:Hebergement .
+h:AubergeJeunesse a rdfs:Class ; rdfs:label "Auberge de jeunesse" ; rdfs:subClassOf h:Hebergement .
+h:Localisation    a rdfs:Class ; rdfs:label "Localisation" .
+
+# -----------------------------------------------------------------------------
+# SCHEMA : proprietes
+# -----------------------------------------------------------------------------
+h:situeDans     a rdf:Property ; rdfs:domain h:Hebergement ; rdfs:range h:Localisation .
+h:prixParNuit   a rdf:Property ; rdfs:domain h:Hebergement ; rdfs:range xsd:integer .
+h:confort       a rdf:Property ; rdfs:domain h:Hebergement ; rdfs:range xsd:integer .  # 0 a 5 etoiles
+h:capacite      a rdf:Property ; rdfs:domain h:Hebergement ; rdfs:range xsd:integer .
+h:accepteAnimaux a rdf:Property ; rdfs:domain h:Hebergement ; rdfs:range xsd:boolean .
+
+# -----------------------------------------------------------------------------
+# DONNEES : localisations
+# -----------------------------------------------------------------------------
+h:nice      a h:Localisation ; rdfs:label "Nice" .
+h:chamonix  a h:Localisation ; rdfs:label "Chamonix" .
+h:barcelone a h:Localisation ; rdfs:label "Barcelone" .
+h:ardeche   a h:Localisation ; rdfs:label "Ardeche" .
+
+# -----------------------------------------------------------------------------
+# DONNEES : hebergements concrets
+# -----------------------------------------------------------------------------
+h:hotelBleu a h:Hotel ; rdfs:label "Hotel Bleu" ;
+    h:situeDans h:nice ; h:prixParNuit 120 ; h:confort 4 ; h:capacite 80 ; h:accepteAnimaux false .
+
+h:hotelDesCimes a h:Hotel ; rdfs:label "Hotel des Cimes" ;
+    h:situeDans h:chamonix ; h:prixParNuit 150 ; h:confort 4 ; h:capacite 60 ; h:accepteAnimaux true .
+
+h:campingSoleil a h:Camping ; rdfs:label "Camping du Soleil" ;
+    h:situeDans h:nice ; h:prixParNuit 35 ; h:confort 2 ; h:capacite 200 ; h:accepteAnimaux true .
+
+h:campingRiviere a h:Camping ; rdfs:label "Camping de la Riviere" ;
+    h:situeDans h:ardeche ; h:prixParNuit 28 ; h:confort 2 ; h:capacite 150 ; h:accepteAnimaux true .
+
+h:giteOlivier a h:Gite ; rdfs:label "Gite de l'Olivier" ;
+    h:situeDans h:ardeche ; h:prixParNuit 90 ; h:confort 3 ; h:capacite 8 ; h:accepteAnimaux true .
+
+h:aubergeCentrale a h:AubergeJeunesse ; rdfs:label "Auberge Centrale" ;
+    h:situeDans h:barcelone ; h:prixParNuit 25 ; h:confort 2 ; h:capacite 120 ; h:accepteAnimaux false .

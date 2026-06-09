@@ -1,0 +1,55 @@
+# =============================================================================
+# Etape 7 : une petite ontologie OWL autour de la famille et des relations.
+#
+# Objectif : declarer des proprietes "intelligentes" qu'OWL sait raisonner :
+#   - SymmetricProperty  : si A connait B, alors B connait A.
+#   - inverseOf          : aPourEnfant <-> aPourParent.
+#   - TransitiveProperty : si A ancetre de B et B ancetre de C, alors A ancetre de C.
+# =============================================================================
+
+@prefix ex:   <http://exemple.org/famille/> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# -----------------------------------------------------------------------------
+# Schema OWL : les proprietes et leurs caracteristiques
+# -----------------------------------------------------------------------------
+
+ex:Personne a owl:Class .
+
+# 1) Propriete SYMETRIQUE : "connait".
+ex:connait a owl:SymmetricProperty ;
+    rdfs:label "connait" .
+
+# 2) Proprietes INVERSES : aPourEnfant est l'inverse de aPourParent.
+ex:aPourEnfant a owl:ObjectProperty ;
+    rdfs:label "a pour enfant" ;
+    owl:inverseOf ex:aPourParent .
+
+ex:aPourParent a owl:ObjectProperty ;
+    rdfs:label "a pour parent" .
+
+# 3) Propriete TRANSITIVE : "a pour ancetre".
+ex:aPourAncetre a owl:TransitiveProperty ;
+    rdfs:label "a pour ancetre" .
+
+# -----------------------------------------------------------------------------
+# Donnees : les individus et les SEULS triplets explicites
+#   (on ecrit volontairement le minimum ; le raisonneur deduira le reste)
+# -----------------------------------------------------------------------------
+
+ex:marie a ex:Personne ; rdfs:label "Marie" .
+ex:paul  a ex:Personne ; rdfs:label "Paul" .
+ex:lea   a ex:Personne ; rdfs:label "Lea" .
+ex:jeanne a ex:Personne ; rdfs:label "Jeanne" .
+
+# Symetrie : on n'ecrit QUE ce sens-ci.
+ex:marie ex:connait ex:paul .
+
+# Inverse : on ecrit seulement "Marie a pour enfant Lea".
+ex:marie ex:aPourEnfant ex:lea .
+
+# Transitivite : Lea -> Marie -> Jeanne (deux maillons explicites).
+ex:lea ex:aPourAncetre ex:marie .
+ex:marie ex:aPourAncetre ex:jeanne .

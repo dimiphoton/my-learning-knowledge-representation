@@ -1,0 +1,89 @@
+# =============================================================================
+# Etape 5 : une mini-ontologie RDFS de l'univers du cinema.
+#
+# Un fichier d'ontologie melange souvent DEUX niveaux :
+#   - le SCHEMA   : les classes et proprietes (le "vocabulaire", le moule).
+#   - les DONNEES : les individus concrets (les "instances", remplissent le moule).
+#
+# On separe visuellement les deux ci-dessous.
+# =============================================================================
+
+@prefix ex:   <http://exemple.org/cinema/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# 1) LE SCHEMA : les classes
+# -----------------------------------------------------------------------------
+
+ex:Personne a rdfs:Class ;
+    rdfs:label "Personne" .
+
+ex:Film a rdfs:Class ;
+    rdfs:label "Film" .
+
+# Un Realisateur EST UNE SORTE DE Personne (sous-classe).
+ex:Realisateur a rdfs:Class ;
+    rdfs:label "Realisateur" ;
+    rdfs:subClassOf ex:Personne .
+
+# Un Acteur aussi est une sous-classe de Personne.
+ex:Acteur a rdfs:Class ;
+    rdfs:label "Acteur" ;
+    rdfs:subClassOf ex:Personne .
+
+# -----------------------------------------------------------------------------
+# 2) LE SCHEMA : les proprietes (avec domain = sujet attendu, range = objet attendu)
+# -----------------------------------------------------------------------------
+
+# "a realise" : relie un Realisateur (domain) a un Film (range).
+ex:aRealise a rdf:Property ;
+    rdfs:label "a realise" ;
+    rdfs:domain ex:Realisateur ;
+    rdfs:range ex:Film .
+
+# "a joue dans" : relie un Acteur (domain) a un Film (range).
+ex:aJoueDans a rdf:Property ;
+    rdfs:label "a joue dans" ;
+    rdfs:domain ex:Acteur ;
+    rdfs:range ex:Film .
+
+# "titre" : le titre d'un Film (une chaine de caracteres).
+ex:titre a rdf:Property ;
+    rdfs:label "titre" ;
+    rdfs:domain ex:Film ;
+    rdfs:range xsd:string .
+
+# "nom" : le nom d'une Personne.
+ex:nom a rdf:Property ;
+    rdfs:label "nom" ;
+    rdfs:domain ex:Personne ;
+    rdfs:range xsd:string .
+
+# -----------------------------------------------------------------------------
+# 3) LES DONNEES : les individus (instances)
+#    Note : on les type avec leur classe la plus PRECISE (Realisateur, Acteur),
+#    et PAS explicitement comme Personne. L'etape 6 montrera que le raisonneur
+#    deduit tout seul qu'ils sont aussi des Personne.
+# -----------------------------------------------------------------------------
+
+ex:nolan a ex:Realisateur ;
+    ex:nom "Christopher Nolan" ;
+    ex:aRealise ex:inception .
+
+ex:dicaprio a ex:Acteur ;
+    ex:nom "Leonardo DiCaprio" ;
+    ex:aJoueDans ex:inception .
+
+ex:inception a ex:Film ;
+    ex:titre "Inception" .
+
+# Clint Eastwood est a la fois Realisateur ET Acteur.
+ex:eastwood a ex:Realisateur , ex:Acteur ;
+    ex:nom "Clint Eastwood" ;
+    ex:aRealise ex:granTorino ;
+    ex:aJoueDans ex:granTorino .
+
+ex:granTorino a ex:Film ;
+    ex:titre "Gran Torino" .

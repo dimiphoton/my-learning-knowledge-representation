@@ -1,0 +1,7 @@
+id,nom,role,superieur_id
+e1,Alice,Directrice,
+e2,Bob,Manager,e1
+e3,Carol,Manager,e1
+e4,David,Ingenieur,e2
+e5,Emma,Ingenieur,e2
+e6,Frank,Ingenieur,e3
