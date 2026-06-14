@@ -21,3 +21,7 @@ pandas>=2.0
 
 # Projet 09 : interface interactive de negociation manuelle (Streamlit).
 streamlit>=1.30
+
+# Projet 09 : tests unitaires + CI (pytest).
+pytest>=8.0
+pytest-cov>=5.0

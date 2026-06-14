@@ -18,28 +18,34 @@ matplotlib.use("Agg")  # backend sans fenetre (on sauvegarde des PNG)
 
 from pathlib import Path
 
-from simulateur import Personne, charger_catalogue
 from consensus_ga import rechercher_consensus
+from simulateur import Personne, charger_catalogue
 from visualisation import tracer_arbre_negociation, tracer_entropie
 
 DOSSIER = Path(__file__).parent
 
 # Le TYPE pese 85 % : chaque camp est intransigeant sur le genre de sejour.
-POIDS_TYPE = {"type": 0.85, "localisation": 0.04, "semaine": 0.05, "budget": 0.03, "animation": 0.03}
+POIDS_TYPE = {
+    "type": 0.80, "localisation": 0.04, "semaine": 0.05,
+    "budget": 0.03, "animation": 0.03, "activite": 0.05,
+}
 
 
 def construire_groupe() -> list[Personne]:
     """Trois camps de 2 personnes, aux gouts incompatibles, avec 3 vetos chacun."""
     camp_plage = [
-        Personne(nom, "Plage", "Espagne", {30, 31, 32, 33}, 800, 8, POIDS_TYPE, marge=0.15, credits_veto=3)
+        Personne(nom, "Plage", "Espagne", "Plongee", {30, 31, 32, 33},
+                 800, 8, POIDS_TYPE, marge=0.15, credits_veto=3)
         for nom in ("Lou", "Manon")
     ]
     camp_montagne = [
-        Personne(nom, "Montagne", "Suisse", {27, 28, 29, 30}, 1200, 3, POIDS_TYPE, marge=0.15, credits_veto=3)
+        Personne(nom, "Montagne", "Suisse", "Randonnee", {27, 28, 29, 30},
+                 1200, 3, POIDS_TYPE, marge=0.15, credits_veto=3)
         for nom in ("Tom", "Zoe")
     ]
     camp_ville = [
-        Personne(nom, "Ville", "Italie", {30, 31, 32, 33}, 800, 7, POIDS_TYPE, marge=0.15, credits_veto=3)
+        Personne(nom, "Ville", "Italie", "Musee", {30, 31, 32, 33},
+                 800, 7, POIDS_TYPE, marge=0.15, credits_veto=3)
         for nom in ("Ali", "Bea")
     ]
     return camp_plage + camp_montagne + camp_ville
@@ -57,7 +63,8 @@ def main() -> None:
     print()
     a = resultat.attrs
     statut = "CONSENSUS" if resultat.consensus else "compromis impose (fin des rounds)"
-    print(f"=> Sejour retenu : {a['nom']} ({a['type']}, {a['localisation']}) semaine {a['semaine']} | {statut}")
+    print(f"=> Sejour retenu : {a['nom']} + {a['activite']} "
+          f"({a['type']}, {a['localisation']}) semaine {a['semaine']} | {statut}")
     print(f"   Satisfactions : {resultat.satisfactions}")
 
     # Combien de candidats distincts ont ete explores / vetotes ?

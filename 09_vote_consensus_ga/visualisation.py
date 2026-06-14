@@ -76,7 +76,7 @@ def construire_arbre(historique: list[dict]) -> "nx.DiGraph":
         consensus = infos["consensus"]
 
         if candidat not in noeuds:
-            etiquette = f"{infos['nom']}\n(s{infos['semaine']})"
+            etiquette = f"{infos['nom']}\n{infos['activite']}\n(s{infos['semaine']})"
             identifiant = etiquette
             # Evite une collision de nom (meme libelle deja present).
             if identifiant in arbre:

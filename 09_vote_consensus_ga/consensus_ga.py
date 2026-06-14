@@ -1,6 +1,6 @@
 """Recherche de consensus : algorithme genetique + protocole de vote.
 
-Le GA EXPLORE l'espace des candidats (destination, semaine). Le protocole de
+Le GA EXPLORE l'espace des candidats (destination, activite, semaine). Le protocole
 votes asynchrones avec veto payant EVALUE les candidats proposes et guide le GA
 (les vetos penalisent fortement un candidat), jusqu'a converger vers un sejour
 qui met tout le monde d'accord.
@@ -21,8 +21,10 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from simulateur import (
+    Candidat,
     Personne,
     attributs_candidat,
+    est_candidat_valide,
     lister_candidats,
     satisfaction,
     seuil_acceptation,
@@ -33,8 +35,6 @@ from strategies import bien_etre_mixte, critere_unanimite
 SEUIL_VETO = 0.35        # en dessous de cette satisfaction, la personne peut vetoter
 PAS_RELACHEMENT = 0.05   # de combien les seuils baissent par round sans consensus
 PENALITE_VETO = 1.0      # penalite de fitness par veto actif (forte = GA evite)
-
-Candidat = tuple[str, int]
 
 
 # =============================================================================
@@ -99,31 +99,57 @@ def _semaine_valide(rng, catalogue: dict[str, dict], dest_id: str) -> int:
     return int(rng.choice(semaines))
 
 
+def _activite_valide(rng, catalogue: dict[str, dict], dest_id: str,
+                     semaine: int) -> str:
+    """Tire une activite compatible pour (destination, semaine)."""
+    ids = catalogue[dest_id]["activites"]
+    compatibles = [
+        a for a in ids
+        if est_candidat_valide(catalogue, (dest_id, a, semaine))
+    ]
+    if not compatibles:
+        return ids[0]
+    return str(rng.choice(compatibles))
+
+
+def _normaliser_candidat(rng, catalogue, candidats, candidat: Candidat) -> Candidat:
+    """Corrige un triplet pour qu'il soit valide (sinon tire au hasard)."""
+    if est_candidat_valide(catalogue, candidat):
+        return candidat
+    return candidat_aleatoire(rng, candidats)
+
+
 def candidat_aleatoire(rng, candidats: list[Candidat]) -> Candidat:
     return tuple(candidats[int(rng.integers(len(candidats)))])
 
 
-def croisement(rng, catalogue, parent1: Candidat, parent2: Candidat) -> Candidat:
-    """Enfant = destination d'un parent + semaine de l'autre (corrigee si besoin)."""
+def croisement(rng, catalogue, candidats, parent1: Candidat,
+               parent2: Candidat) -> Candidat:
+    """Enfant = lieu p1 + activite p2 + semaine p2 (corrige si besoin)."""
     dest = parent1[0]
-    semaine = parent2[1]
-    # La semaine du parent2 peut ne pas exister pour cette destination : on corrige.
-    if semaine not in catalogue[dest]["semaines"]:
-        semaine = _semaine_valide(rng, catalogue, dest)
-    return (dest, semaine)
+    activite = parent2[1]
+    semaine = parent2[2]
+    enfant = (dest, activite, semaine)
+    return _normaliser_candidat(rng, catalogue, candidats, enfant)
 
 
-def mutation(rng, catalogue, candidats, candidat: Candidat, taux: float = 0.3) -> Candidat:
-    """Avec une probabilite 'taux', change la destination OU la semaine."""
-    dest, semaine = candidat
+def mutation(rng, catalogue, candidats, candidat: Candidat,
+             taux: float = 0.3) -> Candidat:
+    """Avec une probabilite 'taux', change lieu, activite ou semaine."""
+    dest, activite, semaine = candidat
     if rng.random() < taux:
-        if rng.random() < 0.5:
-            # nouvelle destination + semaine valide
+        choix = rng.integers(0, 3)
+        if choix == 0:
             dest = candidat_aleatoire(rng, candidats)[0]
             semaine = _semaine_valide(rng, catalogue, dest)
+            activite = _activite_valide(rng, catalogue, dest, semaine)
+        elif choix == 1:
+            activite = _activite_valide(rng, catalogue, dest, semaine)
         else:
             semaine = _semaine_valide(rng, catalogue, dest)
-    return (dest, semaine)
+            activite = _activite_valide(rng, catalogue, dest, semaine)
+        candidat = (dest, activite, semaine)
+    return _normaliser_candidat(rng, catalogue, candidats, candidat)
 
 
 def _selection_tournoi(rng, population, notes, taille=3) -> Candidat:
@@ -156,7 +182,7 @@ def evoluer(
         while len(nouvelle_pop) < len(population):
             p1 = _selection_tournoi(rng, population, notes)
             p2 = _selection_tournoi(rng, population, notes)
-            enfant = croisement(rng, catalogue, p1, p2)
+            enfant = croisement(rng, catalogue, candidats, p1, p2)
             enfant = mutation(rng, catalogue, candidats, enfant)
             nouvelle_pop.append(enfant)
 
@@ -343,6 +369,7 @@ def rechercher_consensus(
             "round": num_round,
             "leader": leader,
             "nom": attrs["nom"],
+            "activite": attrs["activite"],
             "semaine": attrs["semaine"],
             "fitness": round(fitness(leader, catalogue, personnes, vetos, bien_etre), 3),
             "relachement": round(relachement, 3),
@@ -358,7 +385,8 @@ def rechercher_consensus(
 
         if verbeux:
             print(
-                f"Round {num_round:2d} | {attrs['nom']} (sem. {attrs['semaine']}) | "
+                f"Round {num_round:2d} | {attrs['nom']} + {attrs['activite']} "
+                f"(sem. {attrs['semaine']}) | "
                 f"approbations {nb_approuve}/{len(personnes)} | "
                 f"vetos: {vetos_du_round or '-'} | "
                 f"H_votes {h_votes:.2f} H_explo {h_explo:.2f} | "

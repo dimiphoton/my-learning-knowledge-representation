@@ -1,0 +1,136 @@
+# =============================================================================
+# Ontologie "vacances 2" : un cas plus realiste pour le choix de vacances.
+#
+# Trois dimensions descriptives, plus riches que l'ontologie 1 :
+#   1. ZONE geographique, organisee en HIERARCHIE (continent -> zone) via
+#      rdfs:subClassOf  (ex : Mediterranee est une sous-classe de Europe).
+#   2. MILIEU : ville / nature / mixte (vt:milieu).
+#   3. SPORTS possibles : propriete multivaluee vt:sportPossible, les sports
+#      etant ranges dans une hierarchie (nautique / montagne / urbain / nature).
+#
+# Le candidat reste un triplet (destination, sport, semaine) : le moteur de
+# consensus est donc reutilise tel quel (le "sport" joue le role d'"activite").
+# =============================================================================
+
+@prefix vt:   <http://exemple.org/vacances2/> .
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+
+# -----------------------------------------------------------------------------
+# 1) Hierarchie des ZONES geographiques : Continent -> Zone
+# -----------------------------------------------------------------------------
+vt:Continent  a rdfs:Class ; rdfs:label "Continent" .
+vt:Zone       a rdfs:Class ; rdfs:label "Zone" .
+
+vt:Europe    a rdfs:Class ; rdfs:subClassOf vt:Continent ; rdfs:label "Europe" .
+vt:Afrique   a rdfs:Class ; rdfs:subClassOf vt:Continent ; rdfs:label "Afrique" .
+vt:Amerique  a rdfs:Class ; rdfs:subClassOf vt:Continent ; rdfs:label "Amerique" .
+
+vt:Mediterranee a rdfs:Class ; rdfs:subClassOf vt:Europe ;   rdfs:label "Mediterranee" .
+vt:Alpes        a rdfs:Class ; rdfs:subClassOf vt:Europe ;   rdfs:label "Alpes" .
+vt:Atlantique   a rdfs:Class ; rdfs:subClassOf vt:Europe ;   rdfs:label "Atlantique" .
+vt:Atlas        a rdfs:Class ; rdfs:subClassOf vt:Afrique ;  rdfs:label "Atlas" .
+vt:Caraibes     a rdfs:Class ; rdfs:subClassOf vt:Amerique ; rdfs:label "Caraibes" .
+
+# -----------------------------------------------------------------------------
+# 2) Les MILIEUX : ville / nature / mixte
+# -----------------------------------------------------------------------------
+vt:Milieu a rdfs:Class ; rdfs:label "Milieu" .
+vt:Urbain a vt:Milieu ; rdfs:label "Urbain" .
+vt:Nature a vt:Milieu ; rdfs:label "Nature" .
+vt:Mixte  a vt:Milieu ; rdfs:label "Mixte" .
+
+# -----------------------------------------------------------------------------
+# 3) Hierarchie des SPORTS + proprietes (saison, intensite, prix)
+# -----------------------------------------------------------------------------
+vt:Sport         a rdfs:Class ; rdfs:label "Sport" .
+vt:SportNautique a rdfs:Class ; rdfs:subClassOf vt:Sport ; rdfs:label "Sport nautique" .
+vt:SportMontagne a rdfs:Class ; rdfs:subClassOf vt:Sport ; rdfs:label "Sport de montagne" .
+vt:SportUrbain   a rdfs:Class ; rdfs:subClassOf vt:Sport ; rdfs:label "Sport urbain" .
+vt:SportNature   a rdfs:Class ; rdfs:subClassOf vt:Sport ; rdfs:label "Sport de nature" .
+
+vt:saison        a rdf:Property ; rdfs:domain vt:Sport ; rdfs:range xsd:string .
+vt:intensiteSport a rdf:Property ; rdfs:domain vt:Sport ; rdfs:range xsd:integer .
+vt:prixSport     a rdf:Property ; rdfs:domain vt:Sport ; rdfs:range xsd:integer .
+
+vt:surf      a vt:SportNautique ; rdfs:label "Surf" ;
+    vt:saison "Ete" ; vt:intensiteSport 7 ; vt:prixSport 50 .
+vt:voile     a vt:SportNautique ; rdfs:label "Voile" ;
+    vt:saison "Ete" ; vt:intensiteSport 5 ; vt:prixSport 70 .
+vt:plongee   a vt:SportNautique ; rdfs:label "Plongee" ;
+    vt:saison "Ete" ; vt:intensiteSport 6 ; vt:prixSport 80 .
+vt:ski       a vt:SportMontagne ; rdfs:label "Ski" ;
+    vt:saison "Hiver" ; vt:intensiteSport 8 ; vt:prixSport 90 .
+vt:escalade  a vt:SportMontagne ; rdfs:label "Escalade" ;
+    vt:saison "Toute l'annee" ; vt:intensiteSport 8 ; vt:prixSport 40 .
+vt:randonnee a vt:SportMontagne ; rdfs:label "Randonnee" ;
+    vt:saison "Toute l'annee" ; vt:intensiteSport 5 ; vt:prixSport 0 .
+vt:vtt       a vt:SportMontagne ; rdfs:label "VTT" ;
+    vt:saison "Toute l'annee" ; vt:intensiteSport 6 ; vt:prixSport 30 .
+vt:skate     a vt:SportUrbain ;   rdfs:label "Skateboard" ;
+    vt:saison "Toute l'annee" ; vt:intensiteSport 6 ; vt:prixSport 10 .
+vt:equitation a vt:SportNature ;  rdfs:label "Equitation" ;
+    vt:saison "Toute l'annee" ; vt:intensiteSport 4 ; vt:prixSport 45 .
+
+# -----------------------------------------------------------------------------
+# 4) Proprietes des destinations
+# -----------------------------------------------------------------------------
+vt:dansZone        a rdf:Property ; rdfs:domain vt:Destination ; rdfs:range vt:Zone .
+vt:milieu          a rdf:Property ; rdfs:domain vt:Destination ; rdfs:range vt:Milieu .
+vt:coutParPersonne a rdf:Property ; rdfs:domain vt:Destination ; rdfs:range xsd:integer .
+vt:semaineDisponible a rdf:Property ; rdfs:domain vt:Destination ; rdfs:range xsd:integer .
+vt:sportPossible   a rdf:Property ; rdfs:domain vt:Destination ; rdfs:range vt:Sport .
+
+# -----------------------------------------------------------------------------
+# 5) Les destinations (semaines 2-9 = hiver, 26-35 = ete)
+# -----------------------------------------------------------------------------
+vt:biarritz a vt:Destination ; rdfs:label "Biarritz" ;
+    vt:dansZone vt:Atlantique ; vt:milieu vt:Mixte ; vt:coutParPersonne 620 ;
+    vt:sportPossible vt:surf, vt:voile, vt:randonnee ;
+    vt:semaineDisponible 27, 28, 29, 30, 31, 32, 33 .
+
+vt:nice a vt:Destination ; rdfs:label "Nice" ;
+    vt:dansZone vt:Mediterranee ; vt:milieu vt:Urbain ; vt:coutParPersonne 600 ;
+    vt:sportPossible vt:plongee, vt:voile, vt:randonnee ;
+    vt:semaineDisponible 27, 28, 29, 30, 31, 32, 33, 34 .
+
+vt:chamonix a vt:Destination ; rdfs:label "Chamonix" ;
+    vt:dansZone vt:Alpes ; vt:milieu vt:Nature ; vt:coutParPersonne 720 ;
+    vt:sportPossible vt:ski, vt:escalade, vt:randonnee, vt:vtt ;
+    vt:semaineDisponible 3, 4, 5, 6, 7, 28, 29, 30, 31 .
+
+vt:barcelone a vt:Destination ; rdfs:label "Barcelone" ;
+    vt:dansZone vt:Mediterranee ; vt:milieu vt:Urbain ; vt:coutParPersonne 560 ;
+    vt:sportPossible vt:skate, vt:voile, vt:plongee ;
+    vt:semaineDisponible 26, 27, 28, 29, 30, 31, 32 .
+
+vt:annecy a vt:Destination ; rdfs:label "Annecy" ;
+    vt:dansZone vt:Alpes ; vt:milieu vt:Mixte ; vt:coutParPersonne 540 ;
+    vt:sportPossible vt:vtt, vt:randonnee, vt:voile, vt:ski ;
+    vt:semaineDisponible 4, 5, 6, 7, 8, 28, 29, 30, 31, 32 .
+
+vt:lacanau a vt:Destination ; rdfs:label "Lacanau" ;
+    vt:dansZone vt:Atlantique ; vt:milieu vt:Nature ; vt:coutParPersonne 480 ;
+    vt:sportPossible vt:surf, vt:vtt, vt:equitation ;
+    vt:semaineDisponible 27, 28, 29, 30, 31, 32, 33, 34 .
+
+vt:zermatt a vt:Destination ; rdfs:label "Zermatt" ;
+    vt:dansZone vt:Alpes ; vt:milieu vt:Nature ; vt:coutParPersonne 1100 ;
+    vt:sportPossible vt:ski, vt:escalade, vt:randonnee ;
+    vt:semaineDisponible 2, 3, 4, 5, 6, 7, 8, 29, 30, 31 .
+
+vt:marrakech a vt:Destination ; rdfs:label "Marrakech" ;
+    vt:dansZone vt:Atlas ; vt:milieu vt:Urbain ; vt:coutParPersonne 520 ;
+    vt:sportPossible vt:randonnee, vt:equitation, vt:vtt ;
+    vt:semaineDisponible 5, 6, 7, 8, 9, 28, 29, 30, 31 .
+
+vt:pointeapitre a vt:Destination ; rdfs:label "Pointe-a-Pitre" ;
+    vt:dansZone vt:Caraibes ; vt:milieu vt:Mixte ; vt:coutParPersonne 980 ;
+    vt:sportPossible vt:plongee, vt:surf, vt:voile ;
+    vt:semaineDisponible 3, 4, 5, 6, 30, 31, 32, 33 .
+
+vt:larochelle a vt:Destination ; rdfs:label "La Rochelle" ;
+    vt:dansZone vt:Atlantique ; vt:milieu vt:Urbain ; vt:coutParPersonne 500 ;
+    vt:sportPossible vt:voile, vt:surf, vt:skate ;
+    vt:semaineDisponible 26, 27, 28, 29, 30, 31, 32 .

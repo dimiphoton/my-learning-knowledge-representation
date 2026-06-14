@@ -9,6 +9,8 @@
 
 | Profil | Commencer par |
 |---|---|
+| **Grand débutant (jamais codé / jamais vu d'ontologie)** | **[COURS_DEBUTANT.md](../COURS_DEBUTANT.md)** |
+| **Piloter le développement (phases, livrables, tests)** | **[DEVELOPMENT_MAP.md](../DEVELOPMENT_MAP.md)** |
 | Découvrir l'idée en 10 min | [01 — Problème et vision](01_PROBLEME_ET_VISION.md) |
 | Comprendre les concepts | [02 — Concepts clés](02_CONCEPTS_CLEFS.md) |
 | Voir comment c'est câblé | [03 — Architecture](03_ARCHITECTURE.md) |

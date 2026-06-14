@@ -11,6 +11,8 @@ N personnes doivent se mettre d'accord sur **un seul** séjour de vacances. Ce p
 
 C'est une démonstration concrète de l'intérêt d'une ontologie : elle structure le domaine, et le reste du système raisonne dessus.
 
+> **Débutant ? Commencez ici :** **[COURS_DEBUTANT.md](COURS_DEBUTANT.md)** — un petit cours pas-à-pas (à quoi sert chaque script, comment lancer).
+> **Piloter le projet :** **[DEVELOPMENT_MAP.md](DEVELOPMENT_MAP.md)** — phases, livrables, tests unitaires, DoD.
 > **Documentation extensive** (concepts, architecture, guide produit) : voir le dossier **[docs/](docs/00_INDEX.md)**.
 > Pour construire un vrai produit (Consensus Engine + blockchain) : **[docs/PROMPT_PRODUIT.md](docs/PROMPT_PRODUIT.md)**.
 
@@ -25,15 +27,26 @@ streamlit run 09_vote_consensus_ga/app_negociation.py
 
 Ou ouvre le notebook pédagogique [vote_consensus.ipynb](vote_consensus.ipynb) qui déroule tout pas à pas.
 
+### Tests unitaires
+
+```bash
+pip install pytest pytest-cov
+cd 09_vote_consensus_ga
+python -m pytest tests/ -v
+```
+
+Sur GitHub, la CI (`.github/workflows/tests.yml`) relance ces tests automatiquement à chaque push/PR sur `main` ou `master` (Python 3.11 et 3.12).
+
 ## Fichiers
 
 | Fichier | Rôle |
 |---|---|
 | `ontologie_vacances.ttl` | L'ontologie : classes (Destination, TypeSejour, Localisation) + catalogue de 12 destinations. |
+| `ontologie_vacances2.ttl` | **2ᵉ ontologie, plus réaliste** : zone géographique hiérarchisée (continent → zone), milieu (ville/nature/mixte), sports possibles (hiérarchie nautique/montagne/urbain/nature). |
 | `ontologie_hebergement.ttl` | Ontologie « voisine » : hiérarchie d'hébergements (Hotel, Camping, Gite, Auberge → Hebergement). |
 | `ontologie_activites.ttl` | Ontologie « voisine » : hiérarchie d'activités (sportive / culturelle / détente) + lien vers une Saison. |
 | `visualiseur_ontologie.py` | **Visualiseur générique** : dessine n'importe quelle ontologie `.ttl` (classes, sous-classes, propriétés, instances). |
-| `simulateur.py` | Lecture SPARQL de l'ontologie, modèle `Personne`, génération des votants, fonction de satisfaction. |
+| `simulateur.py` | Lecture SPARQL de l'ontologie, modèle `Personne`, génération des votants, fonction de satisfaction, **profils NPC** (`PROFILS_NPC`, `creer_npc`). |
 | `consensus_ga.py` | L'algorithme génétique, le protocole de vote (votes asynchrones + veto payant) et les **compteurs d'entropie**. Entièrement **paramétrable** (bien-être, critère, mode de vote, mode de veto). |
 | `strategies.py` | Les **stratégies interchangeables** : fonctions de bien-être, critères de consensus, et le **moteur exhaustif** (vérité-terrain). |
 | `visualisation.py` | Génère la **courbe d'entropie** et l'**arbre de négociation** (matplotlib + networkx). |
@@ -41,9 +54,12 @@ Ou ouvre le notebook pédagogique [vote_consensus.ipynb](vote_consensus.ipynb) q
 | `scenario_branches.py` | Scénario à 3 camps inconciliables qui **explore plusieurs branches** ; sauvegarde `entropie.png` et `arbre_negociation.png`. |
 | `vote_consensus.ipynb` | Le notebook pédagogique (catalogue, opinions, GA seul, protocole, démo du veto, entropie + arbre). |
 | `comparaison_strategies.ipynb` | Compare les stratégies entre elles (bien-être, GA vs exhaustif, critères, vote, veto) avec tableaux et graphiques. |
-| `negociation_manuelle.py` | Moteur de **négociation manuelle** : vous incarnez chaque personne et votez round par round. |
+| `negociation_manuelle.py` | Moteur de **négociation manuelle** : humains et/ou NPC, mécanismes de forçage (critère dégressif, élimination), auto-run. |
 | `app_negociation.py` | **Interface Streamlit** : panneau de vote à gauche, arbre + entropie à droite. |
 | `docs/` | **Documentation conceptuelle** : concepts, architecture, guide pratique, glossaire, prompt produit. |
+| `COURS_DEBUTANT.md` | **Cours pas-à-pas** pour débutant (scripts, fonctions, lancement). |
+| `DEVELOPMENT_MAP.md` | **Carte de développement** : phases, livrables, tests unitaires, DoD. |
+| `tests/` | **Tests unitaires** (`pytest`, 49 tests) : simulateur, strategies, consensus_ga, negociation_manuelle. |
 
 ## Documentation
 
@@ -63,18 +79,71 @@ Pour **simuler vous-même** une négociation à plusieurs (sans opinions génér
 streamlit run 09_vote_consensus_ga/app_negociation.py
 ```
 
-**Colonne gauche — panneau de vote :**
-1. **Lire la question** : le candidat proposé (destination, semaine, coût…) lu depuis l'ontologie ;
-2. **Répondre** : Approuver / Rejeter (mode binaire) ou noter de 0 à 10 (mode score) ;
-3. **Changer de personne** : flèches `◀` / `▶` pour passer de Alice à Bob, etc.
+L'interface est organisée en **4 onglets** (+ barre de statut toujours visible) :
 
-Quand tout le monde a voté, cliquez **Valider le round**. Si pas de consensus, un nouveau candidat est proposé.
+| Onglet | Contenu |
+|---|---|
+| **Vote** | Proposition courante, votes humains (flèches ◀ ▶), validation du round |
+| **Entropie** | Courbe de désaccord + diversité d'exploration, tableau numérique |
+| **Chemins explorés** | Arbre de négociation + frise chronologique des options testées |
+| **Historique** | Tableau de tous les rounds (export CSV) |
 
-**Colonne droite — visualisation :**
-- l'**arbre de négociation** (options explorées, vetos en rouge, consensus en vert) ;
-- la **courbe d'entropie** (désaccord + diversité d'exploration round par round).
+Dans la barre latérale : ontologie, humains/NPC, règles du vote, mécanismes de forçage, bouton « Nouvelle négociation ».
 
-Dans la barre latérale : nombre de personnes, mode de vote, critère de consensus, veto payant (optionnel), bouton « Nouvelle négociation ».
+### NPC (votants automatiques)
+
+On peut remplacer tout ou partie des votants par des **NPC** : des personnages aux **préférences définies au lancement** (un profil) qui **votent automatiquement** selon leur satisfaction.
+
+- Si une partie des votants sont humains : les NPC votent tout seuls à chaque round, l'humain complète avec les flèches.
+- Si **tous** les votants sont des NPC : un bouton **« Jouer automatiquement »** déroule la négociation jusqu'au bout, sans intervention.
+
+Les profils sont définis dans `simulateur.py` (`PROFILS_NPC`) :
+
+| Profil | Préfère |
+|---|---|
+| `Fetard plage` | Plage / Espagne / Plongée, animation élevée |
+| `Montagnard calme` | Montagne / Suisse / Randonnée, peu d'animation |
+| `Citadin culturel` | Ville / Italie / Musée |
+| `Econome flexible` | Campagne / France, budget serré, marge large |
+| `Routard conciliant` | Plage / Portugal, très conciliant (cède vite) |
+| `Aventurier sportif` | Montagne / France / Randonnée |
+
+En Python :
+
+```python
+from simulateur import charger_catalogue, creer_npc
+from negociation_manuelle import demarrer, jouer_automatiquement, attrs_leader
+
+catalogue = charger_catalogue()
+npcs = {n: creer_npc(n, p) for n, p in [
+    ("Nina", "Fetard plage"),
+    ("Otto", "Montagnard calme"),
+    ("Rita", "Citadin culturel"),
+]}
+etat = demarrer(catalogue, list(npcs), npcs=npcs, critere_degressif=True)
+jouer_automatiquement(etat)
+print(attrs_leader(etat))  # le séjour choisi automatiquement
+```
+
+## Mécanismes pour forcer la décision et la négociation
+
+Une négociation peut s'enliser (chacun campe sur sa position). Le projet propose plusieurs **mécanismes incitatifs**, activables indépendamment :
+
+| Mécanisme | Idée | Où |
+|---|---|---|
+| **Relâchement progressif** | À chaque round sans accord, les seuils d'acceptation baissent : on devient plus conciliant avec le temps. | `pas_relachement` (toujours actif) |
+| **Date butoir (BATNA)** | Sans accord avant `max_rounds`, on **impose** le meilleur compromis non vetoté. La menace du « pas d'accord » pousse à céder. | `max_rounds` |
+| **Critère dégressif** | L'exigence se relâche : unanimité → supermajorité (66 %) → majorité simple. Garantit une décision rapide. | `critere_degressif=True` |
+| **Élimination progressive** | Le menu **rétrécit** à chaque round (on retire les pires options et les vetotées). L'espace de choix se réduit jusqu'à converger. | `elimination=True` |
+| **Veto payant** | Bloquer coûte un crédit limité : on ne peut pas tout refuser éternellement. | `veto_actif=True` |
+
+Effet mesuré (4 NPC, même graine) : sans critère dégressif, consensus en **8 rounds** ; avec, en **5 rounds**.
+
+D'autres pistes possibles (non implémentées, faciles à ajouter) :
+
+- **Jetons de rejet** : chaque votant a un nombre limité de « non ». Une fois épuisés, il doit approuver.
+- **Coût d'enlisement monétaire** : le prix monte (ou les bonnes semaines se réservent) à chaque round perdu.
+- **Vote final obligatoire** : à la date butoir, on bascule en pluralité (l'option la plus approuvée gagne, toujours).
 
 ## Visualiseur d'ontologie
 
@@ -107,11 +176,42 @@ Pour s'exercer, deux ontologies supplémentaires sur le thème des vacances mont
 
 ![Aperçu de l'ontologie des activités](apercu_activites.png)
 
+## Plusieurs ontologies : le moteur s'adapte
+
+Le moteur (GA + protocole de vote) **ne connaît pas l'ontologie**. Il dialogue seulement avec trois « contrats » :
+
+1. un **catalogue** = `dict[id_destination -> {nom, cout, semaines:[...], activites:[...], + attributs optionnels}]` ;
+2. un dictionnaire global **`ACTIVITES`** (l'activité/sport : `nom`, `saison`, `prix`...) ;
+3. une **`Personne`** dont les `poids` indiquent quels critères comptent.
+
+`satisfaction()` et `attributs_candidat()` sont **génériques** : un critère n'est noté que s'il est présent à la fois dans les attributs du candidat **et** dans les poids de la personne. Pour brancher une nouvelle ontologie, il suffit donc d'écrire **un loader** qui produit le catalogue au bon format — sans toucher au GA ni au protocole.
+
+Le projet fournit **deux ontologies** pour le prouver :
+
+| Ontologie | Loader | Critères de satisfaction |
+|---|---|---|
+| `ontologie_vacances.ttl` (simple) | `charger_catalogue()` | type, localisation, animation, activité, semaine, budget |
+| `ontologie_vacances2.ttl` (réaliste) | `charger_catalogue_v2()` | **zone**, **milieu**, sport, semaine, budget |
+
+Dans l'ontologie 2, la **zone** est hiérarchisée (`rdfs:subClassOf` : `Méditerranée` → `Europe`) et les **sports** forment une hiérarchie (nautique / montagne / urbain / nature), avec une **saison** qui filtre les semaines (le ski n'est proposé qu'en hiver). Le candidat reste un triplet `(destination, sport, semaine)`, donc le moteur tourne **sans aucune modification**.
+
+```python
+from consensus_ga import rechercher_consensus
+from simulateur import charger_catalogue_v2, creer_npc, PROFILS_NPC_V2
+
+catalogue = charger_catalogue_v2()                 # 2ᵉ ontologie
+npcs = [creer_npc(n, p, profils=PROFILS_NPC_V2)
+        for n, p in zip(["Nina", "Otto", "Rita"], list(PROFILS_NPC_V2)[:3])]
+resultat = rechercher_consensus(catalogue, npcs)   # même moteur !
+```
+
+Dans l'interface Streamlit, un menu **« Ontologie »** (barre latérale) permet de basculer de l'une à l'autre ; les profils NPC proposés s'adaptent automatiquement.
+
 ## Le modèle
 
 ### L'espace de recherche
 
-Un **candidat** = un couple `(destination, semaine)`. Chaque destination apporte ses attributs depuis l'ontologie (type, localisation, coût, animation, semaines disponibles).
+Un **candidat** = un triplet `(destination, activite, semaine)`. Chaque destination apporte ses attributs depuis l'ontologie (type, localisation, coût, animation, semaines disponibles, activités possibles).
 
 ### La satisfaction
 

@@ -23,6 +23,7 @@ def afficher_personnes(personnes) -> None:
         semaines = sorted(p.semaines_dispo)
         print(
             f"  {p.nom:8s} | aime {p.type_prefere:8s} en {p.localisation_preferee:8s} | "
+            f"activite {p.activite_preferee:12s} | "
             f"budget {p.budget_max} | animation ideale {p.animation_preferee}/10 | "
             f"semaines {semaines[0]}-{semaines[-1]} | marge {p.marge:.2f} | "
             f"vetos {p.credits_veto}"
@@ -33,7 +34,8 @@ def afficher_personnes(personnes) -> None:
 def afficher_resultat(titre, resultat) -> None:
     print(f"=== {titre} ===")
     a = resultat.attrs
-    print(f"  Sejour : {a['nom']} ({a['type']}, {a['localisation']}) semaine {a['semaine']}, {a['cout']} EUR/pers")
+    print(f"  Sejour : {a['nom']} + {a['activite']} ({a['type']}, {a['localisation']}) "
+          f"semaine {a['semaine']}, {a['cout_total']} EUR/pers (dont activite {a['cout_activite']})")
     sats = resultat.satisfactions
     moyenne = sum(sats.values()) / len(sats)
     mini = min(sats.values())
@@ -47,7 +49,10 @@ def afficher_resultat(titre, resultat) -> None:
 
 def main() -> None:
     catalogue = charger_catalogue()
-    print(f"Catalogue : {len(catalogue)} destinations chargees depuis l'ontologie.\n")
+    from simulateur import lister_candidats
+    nb_candidats = len(lister_candidats(catalogue))
+    print(f"Catalogue : {len(catalogue)} destinations, {nb_candidats} combinaisons "
+          f"(lieu x activite x semaine).\n")
 
     personnes = generer_personnes(NB_PERSONNES, catalogue, credits_veto=CREDITS_VETO, graine=GRAINE)
     afficher_personnes(personnes)

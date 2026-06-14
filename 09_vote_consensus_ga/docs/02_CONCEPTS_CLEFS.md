@@ -28,12 +28,12 @@ L'**espace de recherche** est l'ensemble de toutes les options possibles.
 Un **candidat** est un point dans cet espace. Ici :
 
 ```
-candidat = (identifiant_destination, numéro_semaine)
+candidat = (identifiant_destination, identifiant_activite, numéro_semaine)
 ```
 
-Exemple : `("nice", 30)` = Nice, semaine 30.
+Exemple : `("nice", "plongee", 30)` = Nice + Plongée, semaine 30.
 
-Le nombre de candidats = nombre de destinations × semaines disponibles par destination (~88 dans le catalogue actuel).
+Le nombre de candidats = combinaisons valides (lieu × activité compatible × semaine), filtrées par la propriété `activitePossible` de l'ontologie et par la saison de l'activité (~275 dans le catalogue actuel).
 
 | Concept | Analogie |
 |---|---|
